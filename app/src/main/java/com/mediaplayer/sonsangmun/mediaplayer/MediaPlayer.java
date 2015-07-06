@@ -406,10 +406,14 @@ public class MediaPlayer extends AppCompatActivity implements View.OnClickListen
     // SeekBar의 터치 시작
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
-        if(mStat == 0) {
-            mMediaPlayer.pause();
-        } else {
-            mVideoView.pause();
+
+            if (mStat == 0) {
+                mMediaPlayer.pause();
+            } else {
+                mVideoView.pause();
+            }
+        try {
+        } catch (Exception e) {
         }
         Toast.makeText(getApplicationContext(), "터치시작", Toast.LENGTH_SHORT).show();
     }
@@ -425,6 +429,9 @@ public class MediaPlayer extends AppCompatActivity implements View.OnClickListen
             if(mVideoView.isPlaying()) {
                 mVideoView.start();
             }
+        }
+        try {
+        } catch (Exception e) {
         }
         Toast.makeText(getApplicationContext(), "터치종료", Toast.LENGTH_SHORT).show();
     }
