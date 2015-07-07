@@ -186,12 +186,12 @@ public class MediaPlayer extends AppCompatActivity implements View.OnClickListen
     private void playerSet(String playerSw) {
         switch (playerSw) {
             case "music":
-                viewTypeMusic.setVisibility(1);
-                viewTypeVideo.setVisibility(0);
+                viewTypeMusic.setVisibility(View.VISIBLE);
+                viewTypeVideo.setVisibility(View.INVISIBLE);
                 break;
             case "video":
-                viewTypeMusic.setVisibility(0);
-                viewTypeVideo.setVisibility(1);
+                viewTypeMusic.setVisibility(View.INVISIBLE);
+                viewTypeVideo.setVisibility(View.VISIBLE);
                 break;
         }
     }
@@ -330,8 +330,8 @@ public class MediaPlayer extends AppCompatActivity implements View.OnClickListen
             Uri fileUri = data.getData();
 
             // 창전환
-            windowOne.setVisibility(1);
-            windowTwo.setVisibility(0);
+            windowOne.setVisibility(View.VISIBLE);
+            windowTwo.setVisibility(View.INVISIBLE);
 
             if (requestCode == REQUEST_CODE_AUDIO && resultCode == RESULT_OK) {
                 // Audio

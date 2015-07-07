@@ -30,7 +30,8 @@
                 android:id="@+id/file_name"
                 android:text="파일명"
                 android:gravity="center_vertical|center"
-                android:paddingStart="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
                 android:layout_weight="1"
                 android:layout_width="1dp"
                 android:layout_height="match_parent" />
