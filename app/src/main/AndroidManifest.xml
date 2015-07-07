@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mediaplayer.sonsangmun.mediaplayer" >
 
+
+    <!-- 메모리에 있는 음악및 영상 파일 접근을 위한 권한 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/mp_launcher"
@@ -14,6 +18,9 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+
+                <data android:scheme="file" />
+                <data android:mimeType="audio/*" />
             </intent-filter>
         </activity>
     </application>

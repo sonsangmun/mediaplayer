@@ -1,6 +1,7 @@
 package com.mediaplayer.sonsangmun.mediaplayer;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,6 +11,8 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,6 +44,15 @@ public class MediaPlayer extends AppCompatActivity implements View.OnClickListen
     // 플레이어
     private android.media.MediaPlayer mMediaPlayer;
     private VideoView mVideoView;
+    private ImageView mImageView;
+
+    private ImageView introMusicImageView;
+    private ImageView introVideoImageView;
+
+    private LinearLayout windowOne;
+    private LinearLayout windowTwo;
+    private LinearLayout viewTypeMusic;
+    private LinearLayout viewTypeVideo;
 
     // 재생시 SeekBar 처리
     // http://androiddeveloper.tistory.com/91
@@ -100,9 +112,20 @@ public class MediaPlayer extends AppCompatActivity implements View.OnClickListen
         mBtnVideoFilePick = (ImageButton) findViewById(R.id.btn_videoFilePick);
         mBtnPlayer = (ImageButton) findViewById(R.id.btn_player);
         mVideoView = (VideoView) findViewById(R.id.videoView);
+        mImageView = (ImageView) findViewById(R.id.imageView);
         mFileName = (TextView) findViewById(R.id.file_name);
         mPlayProgressBar = (SeekBar) findViewById(R.id.play_seekbard);
 
+        introMusicImageView = (ImageView) findViewById(R.id.intro_music_imageview);
+        introVideoImageView = (ImageView) findViewById(R.id.intro_video_imageview);
+
+        windowOne = (LinearLayout) findViewById(R.id.window_one);
+        windowTwo = (LinearLayout) findViewById(R.id.window_two);
+        viewTypeMusic = (LinearLayout) findViewById(R.id.view_type_music);
+        viewTypeVideo = (LinearLayout) findViewById(R.id.view_type_video);
+
+        introMusicImageView.setOnClickListener(this);
+        introVideoImageView.setOnClickListener(this);
         mBtnAudioFilePick.setOnClickListener(this);
         mBtnVideoFilePick.setOnClickListener(this);
         mBtnPlayer.setOnClickListener(this);
@@ -114,52 +137,114 @@ public class MediaPlayer extends AppCompatActivity implements View.OnClickListen
         Intent i = null;
         switch (v.getId()) {
             case R.id.btn_audioFilePick:
-                // FileChooser 사용
-                i = new Intent(Intent.ACTION_GET_CONTENT);
-                i.setType("audio/*");
-                startActivityForResult(Intent.createChooser(i, "파일선택..."), REQUEST_CODE_AUDIO);
-
-                // 파일 선택창이 열린후 처리
-                // 파일을 선택하면 onActivityResult 가 호출됨.
-                mStat = 0;  // 현재 플레이는 음악 플레이
-                // 음악 아이콘은 on으로 활성화
-                mBtnAudioFilePick.setImageResource(R.drawable.audio_on);
-                // 동영상 아이콘은 off로 비활성화
-                mBtnVideoFilePick.setImageResource(R.drawable.video);
-                // 음악 관련 플레이/멈춤 버튼 처리
-                if(mMediaPlayer != null) {
-                    viewSwitchSet(mAudioStat);
-                    mPlayProgressBar.setMax(mMaxAudioPoint);
-                }
+                setPlayMusic();
                 break;
             case R.id.btn_videoFilePick:
-                // FileChooser 사용
-                i = new Intent(Intent.ACTION_GET_CONTENT);
-                i.setType("video/*");
-                startActivityForResult(Intent.createChooser(i, "파일선택..."), REQUEST_CODE_VIDEO);
-
-                // 파일 선택창이 열린후 처리
-                // 파일을 선택하면 onActivityResult 가 호출됨.
-                mStat = 1;  // 현재 플레이는 동영상 플레이
-                // 동영상 아이콘은 on으로 활성화
-                mBtnVideoFilePick.setImageResource(R.drawable.video_on);
-                // 음악 아이콘은 off로 비활성화
-                mBtnAudioFilePick.setImageResource(R.drawable.audio);
-                // 동영상 관련 플레이/멈춤 버튼 처리
-                if(mVideoView != null) {
-                    viewSwitchSet(mVideoStat);
-                    mPlayProgressBar.setMax(mMaxVideoPoint);
-                }
+                setPlayVideo();
                 break;
             case R.id.btn_player:
                 if(mStat == 0) {
                     // 상태가 음악인 경우 음악관련 처리
+                    playerSet("audio");
                     playerAudio();
                 } else {
                     // 상태가 동영상인 경우 동영상관련 처리
+                    playerSet("video");
                     playerVideo();
                 }
                 break;
+            case R.id.intro_music_imageview:
+                introSet("music");
+                setPlayMusic();
+                break;
+            case R.id.intro_video_imageview:
+                introSet("video");
+                setPlayVideo();
+                break;
+        }
+    }
+
+    private void introSet(String introSw) {
+        switch (introSw) {
+            case "music":
+                introVideoImageView.setImageResource(R.drawable.video_player_img);
+                introVideoImageView.setBackgroundColor(Color.parseColor("#FFFFFF"));
+
+                introMusicImageView.setImageResource(R.drawable.music_player_over_img);
+                introMusicImageView.setBackgroundColor(Color.parseColor("#000000"));
+                break;
+            case "video":
+                introVideoImageView.setImageResource(R.drawable.video_player_over_img);
+                introVideoImageView.setBackgroundColor(Color.parseColor("#000000"));
+
+                introMusicImageView.setImageResource(R.drawable.music_player_img);
+                introMusicImageView.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                break;
+        }
+    }
+
+    private void playerSet(String playerSw) {
+        switch (playerSw) {
+            case "music":
+                viewTypeMusic.setVisibility(1);
+                viewTypeVideo.setVisibility(0);
+                break;
+            case "video":
+                viewTypeMusic.setVisibility(0);
+                viewTypeVideo.setVisibility(1);
+                break;
+        }
+    }
+
+    private void setPlayMusic() {
+        Intent i = null;
+
+        // FileChooser 사용
+        i = new Intent(Intent.ACTION_GET_CONTENT);
+        i.setType("audio/*");
+        startActivityForResult(Intent.createChooser(i, "파일선택..."), REQUEST_CODE_AUDIO);
+
+        // 파일 선택창이 열린후 처리
+        // 파일을 선택하면 onActivityResult 가 호출됨.
+        mStat = 0;  // 현재 플레이는 음악 플레이
+
+        // ImageView 와 viewoView 처리
+        playerSet("music");
+        // 음악 아이콘은 on으로 활성화
+        mBtnAudioFilePick.setImageResource(R.drawable.audio_on);
+        // 동영상 아이콘은 off로 비활성화
+        mBtnVideoFilePick.setImageResource(R.drawable.video);
+        // 음악 관련 플레이/멈춤 버튼 처리
+        if(mMediaPlayer != null) {
+            viewSwitchSet(mAudioStat);
+            mPlayProgressBar.setMax(mMaxAudioPoint);
+        }
+
+
+    }
+
+    private void setPlayVideo(){
+        Intent i = null;
+
+        // FileChooser 사용
+        i = new Intent(Intent.ACTION_GET_CONTENT);
+        i.setType("video/*");
+        startActivityForResult(Intent.createChooser(i, "파일선택..."), REQUEST_CODE_VIDEO);
+
+        // 파일 선택창이 열린후 처리
+        // 파일을 선택하면 onActivityResult 가 호출됨.
+        mStat = 1;  // 현재 플레이는 동영상 플레이
+
+        // ImageView 와 viewoView 처리
+        playerSet("video");
+        // 동영상 아이콘은 on으로 활성화
+        mBtnVideoFilePick.setImageResource(R.drawable.video_on);
+        // 음악 아이콘은 off로 비활성화
+        mBtnAudioFilePick.setImageResource(R.drawable.audio);
+        // 동영상 관련 플레이/멈춤 버튼 처리
+        if (mVideoView != null) {
+            viewSwitchSet(mVideoStat);
+            mPlayProgressBar.setMax(mMaxVideoPoint);
         }
     }
 
@@ -240,42 +325,58 @@ public class MediaPlayer extends AppCompatActivity implements View.OnClickListen
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == REQUEST_CODE_AUDIO && resultCode == RESULT_OK) {
-            // Audio
+        try {
+            // 선택한 파일이 있는 경우
             Uri fileUri = data.getData();
 
-            startMusic(fileUri);
-            mBtnPlayer.setImageResource(R.drawable.player_pause);
-            mAudioStat = 1;
-            if(mVideoView != null) {
-                mVideoView.pause();
-                mVideoStat = 0;
-            }
+            // 창전환
+            windowOne.setVisibility(1);
+            windowTwo.setVisibility(0);
+
+            if (requestCode == REQUEST_CODE_AUDIO && resultCode == RESULT_OK) {
+                // Audio
+
+                startMusic(fileUri);
+                mBtnPlayer.setImageResource(R.drawable.player_pause);
+                mAudioStat = 1;
+                if (mVideoView != null) {
+                    mVideoView.pause();
+                    mVideoStat = 0;
+                }
 //            Intent intent = new Intent(getApplicationContext(), MusicService.class);
 //            intent.putExtra("uri", fileUri);
 //            startService(intent);
 
 //            mBtnAudioFilePick.setText(fileUri.getPath());
-            mFileName.setText(fileUri.getPath());
-        } else if (requestCode == REQUEST_CODE_VIDEO && resultCode == RESULT_OK) {
-            // Video
-            Uri fileUri = data.getData();
 
-            startVideo(fileUri);
-            mBtnPlayer.setImageResource(R.drawable.player_pause);
-            mVideoStat = 1;
-            if(mMediaPlayer != null) {
-                mMediaPlayer.pause();
-                mAudioStat = 0;
-            }
+//            mFileName.setText(fileUri.getPath());
+            } else if (requestCode == REQUEST_CODE_VIDEO && resultCode == RESULT_OK) {
+                // Video
+
+                startVideo(fileUri);
+                mBtnPlayer.setImageResource(R.drawable.player_pause);
+                mVideoStat = 1;
+                if (mMediaPlayer != null) {
+                    mMediaPlayer.pause();
+                    mAudioStat = 0;
+                }
 
 //            mVideoView.setVideoURI(fileUri);
 //            mVideoView.start();
 
 //            mBtnVideoFilePick.setText(fileUri.getPath());
-            mFileName.setText(fileUri.getPath());
-        }
+//            mFileName.setText(fileUri.getPath());
+            }
 
+            // 파일명 자르기
+            String getFilePath = String.valueOf(fileUri.getPath());
+            String[] filePathSplit = getFilePath.split("/");
+            int filePathLength = filePathSplit.length;
+//        mFileName.setText(filePathSplit[filePathSplit.length]);
+            mFileName.setText(filePathSplit[filePathLength - 1]);
+        } catch (Exception e) {
+
+        }
     }
 
     // 음악 재생 시작
@@ -375,10 +476,6 @@ public class MediaPlayer extends AppCompatActivity implements View.OnClickListen
         return super.onKeyDown(keyCode, event);
     }
 
-    public String explode(String word, String cutChar) {
-        return "";
-    }
-
     @Override
     public void onCompletion(android.media.MediaPlayer mp) {
         // 재생이 종료됨
@@ -391,48 +488,53 @@ public class MediaPlayer extends AppCompatActivity implements View.OnClickListen
     // SeekBar의 드래깅
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        if(fromUser) {
-            if(mStat == 0) {
-                mMediaPlayer.seekTo(mPlayProgressBar.getProgress());
-                mMediaPlayer.start();
-            } else {
-                mVideoView.seekTo(mPlayProgressBar.getProgress());
-                mVideoView.start();
+        try {
+            if (fromUser) {
+                if (mStat == 0) {
+                    mMediaPlayer.seekTo(mPlayProgressBar.getProgress());
+                    mMediaPlayer.start();
+                } else {
+                    mVideoView.seekTo(mPlayProgressBar.getProgress());
+                    mVideoView.start();
+                }
             }
+            Toast.makeText(getApplicationContext(), "드래깅", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
         }
-        Toast.makeText(getApplicationContext(), "드래깅", Toast.LENGTH_SHORT).show();
     }
 
     // SeekBar의 터치 시작
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
-
+        try {
             if (mStat == 0) {
                 mMediaPlayer.pause();
             } else {
                 mVideoView.pause();
             }
-        try {
+
+            Toast.makeText(getApplicationContext(), "터치시작", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
+
         }
-        Toast.makeText(getApplicationContext(), "터치시작", Toast.LENGTH_SHORT).show();
     }
 
     // SeekBar의 터치 종료
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-        if(mStat == 0) {
-            if(mMediaPlayer.isPlaying()) {
-                mMediaPlayer.start();
-            }
-        } else {
-            if(mVideoView.isPlaying()) {
-                mVideoView.start();
-            }
-        }
         try {
+            if(mStat == 0) {
+                if(mMediaPlayer.isPlaying()) {
+                    mMediaPlayer.start();
+                }
+            } else {
+                if(mVideoView.isPlaying()) {
+                    mVideoView.start();
+                }
+            }
+
+            Toast.makeText(getApplicationContext(), "터치종료", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
         }
-        Toast.makeText(getApplicationContext(), "터치종료", Toast.LENGTH_SHORT).show();
     }
 }
