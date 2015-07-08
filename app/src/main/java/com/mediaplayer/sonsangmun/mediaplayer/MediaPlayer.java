@@ -15,7 +15,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.VideoView;
 
 import java.io.IOException;
@@ -186,11 +185,11 @@ public class MediaPlayer extends AppCompatActivity implements View.OnClickListen
     private void playerSet(String playerSw) {
         switch (playerSw) {
             case "music":
+                viewTypeVideo.setVisibility(View.GONE);
                 viewTypeMusic.setVisibility(View.VISIBLE);
-                viewTypeVideo.setVisibility(View.INVISIBLE);
                 break;
             case "video":
-                viewTypeMusic.setVisibility(View.INVISIBLE);
+                viewTypeMusic.setVisibility(View.GONE);
                 viewTypeVideo.setVisibility(View.VISIBLE);
                 break;
         }
@@ -208,8 +207,6 @@ public class MediaPlayer extends AppCompatActivity implements View.OnClickListen
         // 파일을 선택하면 onActivityResult 가 호출됨.
         mStat = 0;  // 현재 플레이는 음악 플레이
 
-        // ImageView 와 viewoView 처리
-        playerSet("music");
         // 음악 아이콘은 on으로 활성화
         mBtnAudioFilePick.setImageResource(R.drawable.audio_on);
         // 동영상 아이콘은 off로 비활성화
@@ -235,8 +232,6 @@ public class MediaPlayer extends AppCompatActivity implements View.OnClickListen
         // 파일을 선택하면 onActivityResult 가 호출됨.
         mStat = 1;  // 현재 플레이는 동영상 플레이
 
-        // ImageView 와 viewoView 처리
-        playerSet("video");
         // 동영상 아이콘은 on으로 활성화
         mBtnVideoFilePick.setImageResource(R.drawable.video_on);
         // 음악 아이콘은 off로 비활성화
@@ -331,16 +326,20 @@ public class MediaPlayer extends AppCompatActivity implements View.OnClickListen
 
             // 창전환
             windowOne.setVisibility(View.VISIBLE);
-            windowTwo.setVisibility(View.INVISIBLE);
+            windowTwo.setVisibility(View.GONE);
 
             if (requestCode == REQUEST_CODE_AUDIO && resultCode == RESULT_OK) {
                 // Audio
+                // ImageView 와 viewoView 처리
+                playerSet("music");
 
                 startMusic(fileUri);
                 mBtnPlayer.setImageResource(R.drawable.player_pause);
                 mAudioStat = 1;
                 if (mVideoView != null) {
-                    mVideoView.pause();
+                    // video player pause
+//                    mVideoView.pause();
+                    mVideoView.stopPlayback();
                     mVideoStat = 0;
                 }
 //            Intent intent = new Intent(getApplicationContext(), MusicService.class);
@@ -352,12 +351,16 @@ public class MediaPlayer extends AppCompatActivity implements View.OnClickListen
 //            mFileName.setText(fileUri.getPath());
             } else if (requestCode == REQUEST_CODE_VIDEO && resultCode == RESULT_OK) {
                 // Video
+                // ImageView 와 viewoView 처리
+                playerSet("video");
 
                 startVideo(fileUri);
                 mBtnPlayer.setImageResource(R.drawable.player_pause);
                 mVideoStat = 1;
                 if (mMediaPlayer != null) {
-                    mMediaPlayer.pause();
+                    // music player pause
+//                    mMediaPlayer.pause();
+                    mMediaPlayer.stop();
                     mAudioStat = 0;
                 }
 
@@ -468,9 +471,9 @@ public class MediaPlayer extends AppCompatActivity implements View.OnClickListen
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
-            Toast.makeText(getApplicationContext(), "볼륨 다운", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), "볼륨 다운", Toast.LENGTH_SHORT).show();
         } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
-            Toast.makeText(getApplicationContext(), "볼륨 업", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), "볼륨 업", Toast.LENGTH_SHORT).show();
         }
 
         return super.onKeyDown(keyCode, event);
@@ -498,7 +501,7 @@ public class MediaPlayer extends AppCompatActivity implements View.OnClickListen
                     mVideoView.start();
                 }
             }
-            Toast.makeText(getApplicationContext(), "드래깅", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), "드래깅", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
         }
     }
@@ -513,7 +516,7 @@ public class MediaPlayer extends AppCompatActivity implements View.OnClickListen
                 mVideoView.pause();
             }
 
-            Toast.makeText(getApplicationContext(), "터치시작", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), "터치시작", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
 
         }
@@ -533,7 +536,7 @@ public class MediaPlayer extends AppCompatActivity implements View.OnClickListen
                 }
             }
 
-            Toast.makeText(getApplicationContext(), "터치종료", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(getApplicationContext(), "터치종료", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
         }
     }

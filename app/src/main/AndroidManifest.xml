@@ -19,8 +19,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
 
-                <data android:scheme="file" />
-                <data android:mimeType="audio/*" />
             </intent-filter>
         </activity>
     </application>
